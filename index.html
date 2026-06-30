@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>営業管理システム</title>
+    <link rel="stylesheet" href="./assets/css/base.css">
+    <link rel="stylesheet" href="./assets/css/layout.css">
+    <link rel="stylesheet" href="./assets/css/components.css">
+    <link rel="stylesheet" href="./assets/css/pages.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="メインナビゲーション">
+        <div class="brand">
+          <span class="brand-mark">S</span>
+          <div>
+            <p class="brand-title">営業管理</p>
+            <p class="brand-subtitle">Version 1.0</p>
+          </div>
+        </div>
+        <nav class="side-nav">
+          <a class="side-nav-item is-active" href="#dashboard">ダッシュボード</a>
+          <a class="side-nav-item" href="#stores">店舗一覧</a>
+        </nav>
+      </aside>
+
+      <main class="main-area">
+        <header class="page-header">
+          <div>
+            <p class="page-kicker">Sales Management</p>
+            <h1>営業管理システム</h1>
+          </div>
+          <div class="header-actions">
+            <label class="button button-secondary" for="csvFileInput">CSV読込</label>
+            <input id="csvFileInput" class="visually-hidden" type="file" accept=".csv,text/csv">
+            <button id="exportCsvButton" class="button button-secondary" type="button">CSV書き出し</button>
+            <button id="bulkAddStoreButton" class="button button-secondary" type="button">店舗一括登録</button>
+            <button id="addStoreButton" class="button button-primary" type="button">店舗追加</button>
+          </div>
+        </header>
+
+        <section id="dashboard" class="page-section" aria-labelledby="dashboardTitle">
+          <div class="section-heading">
+            <div>
+              <p class="section-label">Dashboard</p>
+              <h2 id="dashboardTitle">営業サマリー</h2>
+            </div>
+            <p id="summaryUpdatedAt" class="section-note"></p>
+          </div>
+          <div id="summaryGrid" class="summary-grid" aria-live="polite"></div>
+        </section>
+
+        <section id="stores" class="page-section stores-section" aria-labelledby="storesTitle">
+          <div class="section-heading">
+            <div>
+              <p class="section-label">Store List</p>
+              <h2 id="storesTitle">店舗一覧</h2>
+            </div>
+            <p id="storeCountText" class="section-note"></p>
+          </div>
+
+          <div class="filter-bar" aria-label="店舗検索">
+            <label class="field">
+              <span>店舗名</span>
+              <input id="filterName" type="search" placeholder="店舗名で検索">
+            </label>
+            <label class="field">
+              <span>グループ</span>
+              <input id="filterGroup" type="search" placeholder="グループ名">
+            </label>
+            <label class="field">
+              <span>担当者</span>
+              <select id="filterOwner"></select>
+            </label>
+            <label class="field">
+              <span>営業ステータス</span>
+              <select id="filterStatus"></select>
+            </label>
+            <label class="field">
+              <span>エリア</span>
+              <select id="filterArea"></select>
+            </label>
+            <button id="clearFiltersButton" class="button button-ghost" type="button">条件クリア</button>
+          </div>
+
+          <div class="table-wrap">
+            <table class="store-table">
+              <thead>
+                <tr>
+                  <th>店舗名</th>
+                  <th>グループ名</th>
+                  <th>エリア</th>
+                  <th>担当者</th>
+                  <th>営業ステータス</th>
+                  <th>最終連絡日</th>
+                  <th>次回連絡日</th>
+                  <th>アポ日時</th>
+                  <th>次回アクション</th>
+                  <th>メモ</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="storeTableBody"></tbody>
+            </table>
+            <div id="emptyState" class="empty-state" hidden>
+              <p>該当する店舗がありません。</p>
+              <span>検索条件を変更するか、店舗を追加してください。</span>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="storeDialog" class="store-dialog">
+      <form id="storeForm" method="dialog">
+        <div class="dialog-header">
+          <div>
+            <p class="section-label">Store</p>
+            <h2 id="dialogTitle">店舗追加</h2>
+          </div>
+          <button id="closeDialogButton" class="icon-button" value="cancel" type="button" aria-label="閉じる">×</button>
+        </div>
+
+        <input id="storeId" type="hidden">
+        <div class="form-grid">
+          <label class="field field-required">
+            <span>店舗名</span>
+            <input id="storeName" type="text" required>
+          </label>
+          <label class="field">
+            <span>グループ名</span>
+            <input id="groupName" type="text">
+          </label>
+          <label class="field">
+            <span>エリア</span>
+            <select id="areaName"></select>
+          </label>
+          <label class="field field-required">
+            <span>担当者</span>
+            <select id="ownerName" required></select>
+          </label>
+          <label class="field field-required">
+            <span>営業ステータス</span>
+            <select id="status" required></select>
+          </label>
+          <label class="field">
+            <span>最終連絡日</span>
+            <input id="lastContactDate" type="date">
+          </label>
+          <label class="field">
+            <span>次回連絡日</span>
+            <input id="nextContactDate" type="date">
+          </label>
+          <label class="field">
+            <span>アポ日時</span>
+            <input id="appointmentAt" type="datetime-local">
+          </label>
+          <label class="field field-wide">
+            <span>次回アクション</span>
+            <input id="nextAction" type="text">
+          </label>
+          <label class="field field-wide">
+            <span>メモ</span>
+            <textarea id="memo" rows="4"></textarea>
+          </label>
+        </div>
+
+        <div class="dialog-actions">
+          <button id="deleteStoreButton" class="button button-danger" type="button" hidden>削除</button>
+          <div class="dialog-action-group">
+            <button id="cancelStoreButton" class="button button-secondary" type="button">キャンセル</button>
+            <button class="button button-primary" type="submit">保存</button>
+          </div>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="bulkStoreDialog" class="store-dialog">
+      <form id="bulkStoreForm" method="dialog">
+        <div class="dialog-header">
+          <div>
+            <p class="section-label">Bulk Add</p>
+            <h2>店舗一括登録</h2>
+          </div>
+          <button id="closeBulkDialogButton" class="icon-button" value="cancel" type="button" aria-label="閉じる">×</button>
+        </div>
+
+        <label class="field field-wide">
+          <span>貼り付けテキスト</span>
+          <textarea id="bulkStoreText" class="bulk-textarea" rows="10" placeholder="LEX (groupdandy)&#10;Re:STAR (RAIN GROUP)&#10;Ruby (個人店)&#10;LUCIR(AIR GROUP)"></textarea>
+        </label>
+        <p class="helper-text">1行につき1店舗として登録します。括弧内はグループ名として保存します。</p>
+        <div id="bulkImportResult" class="result-message" hidden></div>
+
+        <div class="dialog-actions">
+          <div></div>
+          <div class="dialog-action-group">
+            <button id="cancelBulkButton" class="button button-secondary" type="button">キャンセル</button>
+            <button class="button button-primary" type="submit">読み込む</button>
+          </div>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="deleteConfirmDialog" class="confirm-dialog">
+      <div class="confirm-dialog-content">
+        <div>
+          <p class="section-label">Delete</p>
+          <h2>この店舗を削除しますか？</h2>
+        </div>
+        <div class="confirm-dialog-actions">
+          <button id="cancelDeleteButton" class="button button-secondary" type="button">キャンセル</button>
+          <button id="confirmDeleteButton" class="button button-danger-solid" type="button">削除</button>
+        </div>
+      </div>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script type="module" src="./assets/js/app.js"></script>
+  </body>
+</html>

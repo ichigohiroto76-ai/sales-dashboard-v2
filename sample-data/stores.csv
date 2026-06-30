@@ -1,0 +1,3 @@
+id,name,groupName,areaName,ownerName,status,lastContactDate,nextContactDate,appointmentAt,nextAction,memo,createdAt,updatedAt
+store_sample_csv_001,青山カフェ,都心カフェグループ,その他,川村大登,返信あり,2026-06-28,2026-07-01,2026-07-02T14:00,資料を送付し導入条件を確認,Instagram経由で反応あり,2026-06-30T00:00:00.000Z,2026-06-30T00:00:00.000Z
+store_sample_csv_002,銀座ダイニング,GINZA FOOD,その他,島田和明,コール済み（返信なし）,2026-06-27,2026-06-30,,夕方に再コール,店長不在,2026-06-30T00:00:00.000Z,2026-06-30T00:00:00.000Z

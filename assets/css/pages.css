@@ -1,0 +1,44 @@
+.stores-section {
+  scroll-margin-top: 24px;
+}
+
+.summary-item[data-status="未対応"] .summary-value {
+  color: var(--warning);
+}
+
+.summary-item[data-status="契約"] .summary-value {
+  color: var(--success);
+}
+
+.summary-item[data-status="見送り"] .summary-value {
+  color: var(--text-muted);
+}
+
+.inline-edit-button {
+  min-width: 64px;
+}
+
+.inline-delete-button {
+  min-width: 64px;
+}
+
+.row-actions {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.trash-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.date-cell {
+  min-width: 118px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.action-cell {
+  min-width: 210px;
+}
