@@ -16,6 +16,7 @@ import { includesText } from "./utils.js";
 const state = {
   stores: [],
   pendingDelete: null,
+  isRefreshing: false,
   filters: {
     name: "",
     groupName: "",
@@ -74,11 +75,12 @@ const elements = {
   }
 };
 
-function init() {
-  state.stores = getStores();
+async function init() {
   populateSelectOptions();
   bindEvents();
+  await refreshStores();
   render();
+  startAutoRefresh();
 }
 
 function populateSelectOptions() {
@@ -119,14 +121,18 @@ function bindEvents() {
   elements.exportCsvButton.addEventListener("click", handleExportCsv);
   elements.csvFileInput.addEventListener("change", handleImportCsv);
 
-  elements.storeTableBody.addEventListener("change", (event) => {
+  elements.storeTableBody.addEventListener("change", async (event) => {
     const select = event.target.closest("[data-status-store-id]");
     if (!select) return;
 
-    updateStoreStatus(select.dataset.statusStoreId, select.value);
-    state.stores = getStores();
-    render();
-    showToast("営業ステータスを更新しました。");
+    try {
+      await updateStoreStatus(select.dataset.statusStoreId, select.value);
+      await refreshStores();
+      showToast("営業ステータスを更新しました。");
+    } catch (error) {
+      console.error(error);
+      window.alert("営業ステータスを更新できませんでした。時間をおいて再度お試しください。");
+    }
   });
 
   elements.storeTableBody.addEventListener("click", (event) => {
@@ -147,6 +153,29 @@ function bindEvents() {
 function render() {
   renderDashboard();
   renderStores();
+}
+
+async function refreshStores(options = {}) {
+  if (state.isRefreshing) return;
+
+  state.isRefreshing = true;
+  try {
+    state.stores = await getStores();
+    render();
+  } catch (error) {
+    console.error(error);
+    if (!options.silent) {
+      window.alert("店舗データを取得できませんでした。時間をおいて再度お試しください。");
+    }
+  } finally {
+    state.isRefreshing = false;
+  }
+}
+
+function startAutoRefresh() {
+  window.setInterval(() => {
+    refreshStores({ silent: true });
+  }, 15000);
 }
 
 function renderDashboard() {
@@ -217,7 +246,7 @@ function closeBulkStoreDialog() {
   elements.bulkStoreDialog.close();
 }
 
-function handleStoreSubmit(event) {
+async function handleStoreSubmit(event) {
   event.preventDefault();
 
   const store = {};
@@ -225,14 +254,18 @@ function handleStoreSubmit(event) {
     store[key] = element.value;
   });
 
-  saveStore(store);
-  state.stores = getStores();
-  render();
-  closeStoreDialog();
-  showToast("店舗情報を保存しました。");
+  try {
+    await saveStore(store);
+    await refreshStores();
+    closeStoreDialog();
+    showToast("店舗情報を保存しました。");
+  } catch (error) {
+    console.error(error);
+    window.alert("店舗情報を保存できませんでした。時間をおいて再度お試しください。");
+  }
 }
 
-function handleBulkStoreSubmit(event) {
+async function handleBulkStoreSubmit(event) {
   event.preventDefault();
 
   const parsedStores = parseBulkStoreText(elements.bulkStoreText.value);
@@ -264,9 +297,14 @@ function handleBulkStoreSubmit(event) {
   });
 
   if (storesToAdd.length > 0) {
-    saveStores(storesToAdd);
-    state.stores = getStores();
-    render();
+    try {
+      await saveStores(storesToAdd);
+      await refreshStores();
+    } catch (error) {
+      console.error(error);
+      window.alert("店舗を一括登録できませんでした。時間をおいて再度お試しください。");
+      return;
+    }
   }
 
   const resultText = `追加件数: ${storesToAdd.length}件 / 重複でスキップ: ${skippedCount}件`;
@@ -297,20 +335,25 @@ function closeDeleteConfirmDialog() {
   elements.deleteConfirmDialog.close();
 }
 
-function confirmDeleteStore() {
+async function confirmDeleteStore() {
   if (!state.pendingDelete) return;
 
   const { storeId, closeStoreDialogOnDelete } = state.pendingDelete;
-  deleteStore(storeId);
-  state.stores = getStores();
-  render();
-  elements.deleteConfirmDialog.close();
-  if (closeStoreDialogOnDelete) closeStoreDialog();
-  state.pendingDelete = null;
-  showToast("店舗を削除しました。");
+  try {
+    await deleteStore(storeId);
+    await refreshStores();
+    elements.deleteConfirmDialog.close();
+    if (closeStoreDialogOnDelete) closeStoreDialog();
+    state.pendingDelete = null;
+    showToast("店舗を削除しました。");
+  } catch (error) {
+    console.error(error);
+    window.alert("店舗を削除できませんでした。時間をおいて再度お試しください。");
+  }
 }
 
-function handleExportCsv() {
+async function handleExportCsv() {
+  await refreshStores({ silent: true });
   const csvText = storesToCsv(getFilteredStores());
   const date = new Date().toISOString().slice(0, 10).replaceAll("-", "");
   downloadCsv(`stores_${date}.csv`, csvText);
@@ -338,7 +381,7 @@ async function handleImportCsv(event) {
   const confirmed = window.confirm(`${stores.length}件の店舗データで現在の一覧を置き換えますか？`);
   if (!confirmed) return;
 
-  state.stores = replaceStores(stores);
+  state.stores = await replaceStores(stores);
   clearFilters();
   render();
   showToast("CSVを読み込みました。");
