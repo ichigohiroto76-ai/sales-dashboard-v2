@@ -1,12 +1,13 @@
 .button {
   display: inline-flex;
-  min-height: 38px;
+  min-height: 34px;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   border: 1px solid transparent;
   border-radius: 8px;
-  padding: 8px 14px;
+  padding: 6px 11px;
+  font-size: 13px;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -87,7 +88,7 @@ textarea:focus {
 
 .field {
   display: grid;
-  gap: 6px;
+  gap: 4px;
 }
 
 .field span {
@@ -105,12 +106,12 @@ input,
 select,
 textarea {
   width: 100%;
-  min-height: 38px;
+  min-height: 34px;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: #ffffff;
   color: var(--text);
-  padding: 8px 10px;
+  padding: 6px 9px;
 }
 
 textarea {
@@ -140,27 +141,31 @@ textarea {
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(9, minmax(112px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .summary-item {
-  min-height: 96px;
+  min-height: 66px;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--surface);
-  padding: 16px;
+  padding: 9px 10px;
 }
 
 .summary-label {
   color: var(--text-muted);
-  font-size: 12px;
+  overflow: hidden;
+  font-size: 11px;
   font-weight: 700;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .summary-value {
-  margin-top: 10px;
-  font-size: 30px;
+  margin-top: 5px;
+  font-size: 24px;
   font-weight: 800;
   line-height: 1;
 }
@@ -172,19 +177,47 @@ textarea {
 
 .filter-bar {
   display: grid;
-  grid-template-columns: 1.1fr 1fr 180px 220px 1fr auto;
-  gap: 12px;
+  grid-template-columns: minmax(180px, 1.1fr) minmax(160px, 1fr) 130px 160px 120px auto;
+  gap: 8px;
   align-items: end;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--surface);
-  padding: 16px;
+  padding: 10px;
+}
+
+.filter-bar .field {
+  min-width: 0;
+}
+
+.filter-bar .field span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.filter-bar input,
+.filter-bar select {
+  min-height: 34px;
+  padding: 6px 8px;
+  font-size: 13px;
+}
+
+.filter-bar .button {
+  min-height: 34px;
+  padding: 6px 10px;
 }
 
 .table-wrap {
   position: relative;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--surface);
@@ -192,16 +225,17 @@ textarea {
 
 .store-table {
   width: 100%;
-  min-width: 1640px;
+  table-layout: fixed;
   border-collapse: collapse;
+  font-size: 13px;
 }
 
 .store-table th,
 .store-table td {
   border-bottom: 1px solid var(--border);
-  padding: 13px 12px;
+  padding: 8px 8px;
   text-align: left;
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 .store-table th {
@@ -213,6 +247,7 @@ textarea {
   font-size: 12px;
   font-weight: 800;
   white-space: nowrap;
+  line-height: 1.25;
 }
 
 .store-table tr:hover td {
@@ -221,46 +256,61 @@ textarea {
 
 .store-table td {
   color: var(--text);
+  height: 62px;
+  line-height: 1.45;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.store-table td:not(.memo-cell):not(.action-cell) {
+.store-table td:not(:last-child) {
   white-space: nowrap;
 }
 
 .store-table th:nth-child(1) {
-  width: 190px;
+  width: 18%;
 }
 
 .store-table th:nth-child(2) {
-  width: 180px;
+  width: 20%;
 }
 
 .store-table th:nth-child(3) {
-  width: 120px;
+  width: 8%;
 }
 
 .store-table th:nth-child(4) {
-  width: 120px;
+  width: 10%;
 }
 
 .store-table th:nth-child(5) {
-  width: 210px;
+  width: 14%;
+}
+
+.store-table th:nth-child(6) {
+  width: 10%;
+}
+
+.store-table th:nth-child(7) {
+  width: 5%;
+}
+
+.store-table th:nth-child(8) {
+  width: 4%;
 }
 
 .store-table th:nth-child(9) {
-  width: 260px;
+  width: 3%;
 }
 
 .store-table th:nth-child(10) {
-  width: 280px;
+  width: 1%;
 }
 
 .store-table th:nth-child(11) {
-  width: 174px;
+  width: 7%;
 }
 
 .store-name {
-  min-width: 170px;
   font-weight: 800;
 }
 
@@ -269,15 +319,18 @@ textarea {
 }
 
 .memo-cell {
-  max-width: 260px;
+  max-width: 1px;
   color: var(--text-muted);
-  white-space: pre-wrap;
+  white-space: nowrap;
 }
 
 .status-select {
-  min-width: 176px;
+  min-width: 0;
+  min-height: 40px;
+  padding: 7px 8px;
   border-color: #c7d2fe;
   background: #f8faff;
+  font-size: 12px;
   font-weight: 700;
 }
 
