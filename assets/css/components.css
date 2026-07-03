@@ -269,11 +269,11 @@ textarea {
 }
 
 .store-table th:nth-child(1) {
-  width: 17%;
+  width: 14%;
 }
 
 .store-table th:nth-child(2) {
-  width: 19%;
+  width: 15%;
 }
 
 .store-table th:nth-child(3) {
@@ -281,15 +281,15 @@ textarea {
 }
 
 .store-table th:nth-child(4) {
-  width: 9%;
+  width: 8%;
 }
 
 .store-table th:nth-child(5) {
-  width: 13%;
+  width: 12%;
 }
 
 .store-table th:nth-child(6) {
-  width: 9%;
+  width: 8%;
 }
 
 .store-table th:nth-child(7) {
@@ -297,15 +297,15 @@ textarea {
 }
 
 .store-table th:nth-child(8) {
-  width: 6%;
+  width: 5%;
 }
 
 .store-table th:nth-child(9) {
-  width: 3%;
+  width: 8%;
 }
 
 .store-table th:nth-child(10) {
-  width: 2%;
+  width: 8%;
 }
 
 .store-table th:nth-child(11) {
@@ -324,10 +324,13 @@ textarea {
 .memo-cell {
   max-width: 1px;
   color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .status-select {
+  width: 100%;
   min-width: 0;
   min-height: 36px;
   padding: 5px 8px;
