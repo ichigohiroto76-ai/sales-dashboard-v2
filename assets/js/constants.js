@@ -23,17 +23,7 @@ export const AREA_NAMES = [
   "その他"
 ];
 
-export const STATUSES = [
-  "未対応",
-  "コール済み",
-  "コール済み（返信なし）",
-  "連絡済み",
-  "返信あり",
-  "アポ",
-  "商談",
-  "契約",
-  "見送り"
-];
+
 
 export const SUMMARY_ITEMS = [
   { key: "__total", label: "総店舗数" },
