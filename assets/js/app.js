@@ -193,7 +193,7 @@ function renderStores() {
 function getFilteredStores() {
   return state.stores.filter((store) => {
     return (
-      includesText(store.name, state.filters.name) &&
+      (includesText(store.name, state.filters.name) || includesText(store.memo, state.filters.name)) &&
       includesText(store.groupName, state.filters.groupName) &&
       (!state.filters.areaName || store.areaName === state.filters.areaName) &&
       (!state.filters.ownerName || store.ownerName === state.filters.ownerName) &&
