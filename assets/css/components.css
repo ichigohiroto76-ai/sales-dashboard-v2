@@ -202,6 +202,14 @@ textarea {
   border: 0;
 }
 
+.filter-bar .field:has(select) span {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+}
+
 .filter-bar input,
 .filter-bar select {
   min-height: 36px;
