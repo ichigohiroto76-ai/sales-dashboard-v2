@@ -44,14 +44,27 @@ function canUseApi() {
   return typeof window !== "undefined" && window.location.protocol !== "file:";
 }
 
+const AUTH_ERROR_MESSAGE = "認証が切れている、またはアクセス権限がありません。ページを再読み込みして認証し直してください。";
+
+function createAuthError() {
+  const error = new Error(AUTH_ERROR_MESSAGE);
+  error.isAuthError = true;
+  return error;
+}
+
 async function requestJson(path, options = {}) {
   const response = await fetch(path, {
+    redirect: "manual",
     ...options,
     headers: {
       "Content-Type": "application/json",
       ...(options.headers || {})
     }
   });
+
+  if (response.type === "opaqueredirect" || response.status === 401 || response.status === 403) {
+    throw createAuthError();
+  }
 
   if (!response.ok) {
     const message = await response.text();
@@ -116,6 +129,7 @@ export async function getStores() {
       persist(normalizedStores);
       return normalizedStores;
     } catch (error) {
+      if (error.isAuthError) throw error;
       console.warn("D1から店舗データを取得できないため、LocalStorageを表示します。", error);
     }
   }
@@ -139,6 +153,7 @@ export async function saveStore(storeInput) {
       });
       return normalizeStore(store);
     } catch (error) {
+      if (error.isAuthError) throw error;
       console.warn("D1へ店舗データを保存できないため、LocalStorageへ保存します。", error);
     }
   }
@@ -164,6 +179,7 @@ export async function saveStores(storeInputs) {
       );
       return savedStores.map(normalizeStore);
     } catch (error) {
+      if (error.isAuthError) throw error;
       console.warn("D1へ一括登録できないため、LocalStorageへ保存します。", error);
     }
   }
@@ -191,6 +207,7 @@ export async function deleteStore(storeId) {
       });
       return;
     } catch (error) {
+      if (error.isAuthError) throw error;
       console.warn("D1の店舗データを削除できないため、LocalStorageから削除します。", error);
     }
   }
@@ -214,6 +231,7 @@ export async function replaceStores(importedStores) {
       persist(normalizedStores);
       return normalizedStores;
     } catch (error) {
+      if (error.isAuthError) throw error;
       console.warn("D1へCSVデータを保存できないため、LocalStorageへ保存します。", error);
     }
   }

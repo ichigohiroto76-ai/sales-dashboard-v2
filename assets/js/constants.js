@@ -28,6 +28,7 @@ export const AREA_NAMES = [
 export const STATUSES = [
   "未対応",
   "コール済み",
+  "コール済み（返信なし）",
   "連絡済み",
   "返信あり",
   "アポ",
@@ -39,6 +40,7 @@ export const SUMMARY_ITEMS = [
   { key: "__total", label: "総店舗数" },
   { key: "未対応", label: "未対応" },
   { key: "コール済み", label: "コール済み" },
+  { key: "コール済み（返信なし）", label: "コール済み（返信なし）" },
   { key: "連絡済み", label: "連絡済み" },
   { key: "返信あり", label: "返信あり" },
   { key: "アポ", label: "アポ獲得" },

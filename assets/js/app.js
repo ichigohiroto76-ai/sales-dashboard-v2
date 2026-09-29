@@ -131,7 +131,7 @@ function bindEvents() {
       showToast("営業ステータスを更新しました。");
     } catch (error) {
       console.error(error);
-      window.alert("営業ステータスを更新できませんでした。時間をおいて再度お試しください。");
+      window.alert(error.isAuthError ? error.message : "営業ステータスを更新できませんでした。時間をおいて再度お試しください。");
     }
   });
 
@@ -165,7 +165,7 @@ async function refreshStores(options = {}) {
   } catch (error) {
     console.error(error);
     if (!options.silent) {
-      window.alert("店舗データを取得できませんでした。時間をおいて再度お試しください。");
+      window.alert(error.isAuthError ? error.message : "店舗データを取得できませんでした。時間をおいて再度お試しください。");
     }
   } finally {
     state.isRefreshing = false;
@@ -261,7 +261,7 @@ async function handleStoreSubmit(event) {
     showToast("店舗情報を保存しました。");
   } catch (error) {
     console.error(error);
-    window.alert("店舗情報を保存できませんでした。時間をおいて再度お試しください。");
+    window.alert(error.isAuthError ? error.message : "店舗情報を保存できませんでした。時間をおいて再度お試しください。");
   }
 }
 
@@ -302,7 +302,7 @@ async function handleBulkStoreSubmit(event) {
       await refreshStores();
     } catch (error) {
       console.error(error);
-      window.alert("店舗を一括登録できませんでした。時間をおいて再度お試しください。");
+      window.alert(error.isAuthError ? error.message : "店舗を一括登録できませんでした。時間をおいて再度お試しください。");
       return;
     }
   }
@@ -348,7 +348,7 @@ async function confirmDeleteStore() {
     showToast("店舗を削除しました。");
   } catch (error) {
     console.error(error);
-    window.alert("店舗を削除できませんでした。時間をおいて再度お試しください。");
+    window.alert(error.isAuthError ? error.message : "店舗を削除できませんでした。時間をおいて再度お試しください。");
   }
 }
 
@@ -381,7 +381,13 @@ async function handleImportCsv(event) {
   const confirmed = window.confirm(`${stores.length}件の店舗データで現在の一覧を置き換えますか？`);
   if (!confirmed) return;
 
-  state.stores = await replaceStores(stores);
+  try {
+    state.stores = await replaceStores(stores);
+  } catch (error) {
+    console.error(error);
+    window.alert(error.isAuthError ? error.message : "CSVを読み込めませんでした。時間をおいて再度お試しください。");
+    return;
+  }
   clearFilters();
   render();
   showToast("CSVを読み込みました。");
