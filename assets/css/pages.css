@@ -179,11 +179,6 @@ button.today-row:hover {
   color: var(--warning);
 }
 
-.today-badge.is-reply {
-  background: #dcfce7;
-  color: var(--success);
-}
-
 .today-empty {
   padding: 18px 12px;
   color: var(--text-muted);

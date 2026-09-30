@@ -4,8 +4,7 @@ const EXCLUDED_STATUSES = ["契約", "見送り"];
 const REASONS = [
   { key: "appointment", label: "アポ" },
   { key: "overdue", label: "期限超過" },
-  { key: "today", label: "今日連絡" },
-  { key: "reply", label: "返信あり" }
+  { key: "today", label: "今日連絡" }
 ];
 
 export function getLocalDateString(date = new Date()) {
@@ -25,7 +24,6 @@ export function getTodayTargets(stores, ownerName = "", today = getLocalDateStri
     if (store.appointmentAt && store.appointmentAt.slice(0, 10) === today) reasons.push("appointment");
     if (store.nextContactDate && store.nextContactDate < today) reasons.push("overdue");
     if (store.nextContactDate === today) reasons.push("today");
-    if (store.status === "返信あり") reasons.push("reply");
 
     if (reasons.length > 0) items.push({ store, reasons });
   });
