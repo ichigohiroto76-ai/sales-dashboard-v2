@@ -2,6 +2,7 @@ import { AREA_NAMES, OWNER_NAMES, STATUSES } from "./constants.js";
 import { downloadCsv, storesFromCsv, storesToCsv } from "./csv.js";
 import { renderSummary } from "./views/dashboardView.js";
 import { renderStoreRows } from "./views/storesView.js";
+import { getTodayTargets, renderTodayBreakdown, renderTodayRows } from "./views/todayView.js";
 import {
   deleteStore,
   getStores,
@@ -13,10 +14,15 @@ import {
 import { buildStoreDuplicateKey, parseBulkStoreText } from "./services/bulkImportService.js";
 import { includesText } from "./utils.js";
 
+const TODAY_OWNER_STORAGE_KEY = "salesTodayOwner";
+const TODAY_VISIBLE_LIMIT = 8;
+
 const state = {
   stores: [],
   pendingDelete: null,
   isRefreshing: false,
+  todayOwner: loadTodayOwner(),
+  todayExpanded: false,
   filters: {
     name: "",
     groupName: "",
@@ -29,6 +35,11 @@ const state = {
 const elements = {
   summaryGrid: document.querySelector("#summaryGrid"),
   summaryUpdatedAt: document.querySelector("#summaryUpdatedAt"),
+  todayCount: document.querySelector("#todayCount"),
+  todayBreakdown: document.querySelector("#todayBreakdown"),
+  todayOwner: document.querySelector("#todayOwner"),
+  todayList: document.querySelector("#todayList"),
+  todayMoreButton: document.querySelector("#todayMoreButton"),
   storeCountText: document.querySelector("#storeCountText"),
   storeTableBody: document.querySelector("#storeTableBody"),
   emptyState: document.querySelector("#emptyState"),
@@ -85,6 +96,8 @@ async function init() {
 
 function populateSelectOptions() {
   elements.filters.ownerName.innerHTML = createOptions([""], "すべて", OWNER_NAMES);
+  elements.todayOwner.innerHTML = createOptions([""], "すべて", OWNER_NAMES);
+  elements.todayOwner.value = state.todayOwner;
   elements.filters.status.innerHTML = createOptions([""], "すべて", STATUSES);
   elements.filters.areaName.innerHTML = createOptions([""], "すべて", AREA_NAMES);
   elements.form.areaName.innerHTML = createOptions([], "", AREA_NAMES);
@@ -135,6 +148,25 @@ function bindEvents() {
     }
   });
 
+  elements.todayOwner.addEventListener("change", () => {
+    state.todayOwner = elements.todayOwner.value;
+    state.todayExpanded = false;
+    saveTodayOwner(state.todayOwner);
+    renderToday();
+  });
+
+  elements.todayMoreButton.addEventListener("click", () => {
+    state.todayExpanded = !state.todayExpanded;
+    renderToday();
+  });
+
+  elements.todayList.addEventListener("click", (event) => {
+    const row = event.target.closest("[data-today-store-id]");
+    if (!row) return;
+    const store = state.stores.find((item) => item.id === row.dataset.todayStoreId);
+    if (store) openStoreDialog(store);
+  });
+
   elements.storeTableBody.addEventListener("click", (event) => {
     const editButton = event.target.closest("[data-edit-store-id]");
     if (editButton) {
@@ -181,6 +213,36 @@ function startAutoRefresh() {
 function renderDashboard() {
   elements.summaryGrid.innerHTML = renderSummary(state.stores);
   elements.summaryUpdatedAt.textContent = `最終更新: ${new Date().toLocaleString("ja-JP")}`;
+  renderToday();
+}
+
+function renderToday() {
+  const { items, counts } = getTodayTargets(state.stores, state.todayOwner);
+  const visibleItems = state.todayExpanded ? items : items.slice(0, TODAY_VISIBLE_LIMIT);
+  const hiddenCount = items.length - TODAY_VISIBLE_LIMIT;
+
+  elements.todayCount.textContent = `${items.length}件`;
+  elements.todayBreakdown.innerHTML = renderTodayBreakdown(counts);
+  elements.todayList.innerHTML = renderTodayRows(visibleItems);
+  elements.todayMoreButton.hidden = hiddenCount <= 0;
+  elements.todayMoreButton.textContent = state.todayExpanded ? "折りたたむ" : `他${hiddenCount}件を表示`;
+}
+
+function loadTodayOwner() {
+  try {
+    const value = localStorage.getItem(TODAY_OWNER_STORAGE_KEY) || "";
+    return OWNER_NAMES.includes(value) ? value : "";
+  } catch (error) {
+    return "";
+  }
+}
+
+function saveTodayOwner(value) {
+  try {
+    localStorage.setItem(TODAY_OWNER_STORAGE_KEY, value);
+  } catch (error) {
+    console.warn("担当者の選択を保存できませんでした。", error);
+  }
 }
 
 function renderStores() {

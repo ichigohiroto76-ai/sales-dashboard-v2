@@ -53,3 +53,148 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.today-breakdown {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.today-breakdown strong {
+  color: var(--text);
+}
+
+.today-owner {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.today-owner select {
+  width: auto;
+  min-width: 118px;
+  min-height: 36px;
+  padding: 7px 9px;
+  font-size: 13px;
+}
+
+.today-list {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.today-row {
+  display: grid;
+  grid-template-columns: 150px minmax(100px, 1.2fr) 80px 140px 90px 130px minmax(80px, 1fr) minmax(100px, 1.4fr);
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 12px;
+  border: 0;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+}
+
+.today-row:first-child {
+  border-top: 0;
+}
+
+button.today-row {
+  cursor: pointer;
+}
+
+button.today-row:hover {
+  background: #f8faff;
+}
+
+.today-row-header {
+  background: var(--surface-muted);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.today-row > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.today-name {
+  overflow: hidden;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.today-text {
+  overflow: hidden;
+  color: var(--text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.today-badges {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+}
+
+.today-badge {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.today-badge.is-appointment {
+  background: #eef3ff;
+  color: var(--primary-dark);
+}
+
+.today-badge.is-overdue {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.today-badge.is-today {
+  background: #fef3c7;
+  color: var(--warning);
+}
+
+.today-badge.is-reply {
+  background: #dcfce7;
+  color: var(--success);
+}
+
+.today-empty {
+  padding: 18px 12px;
+  color: var(--text-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.today-more {
+  margin-top: 8px;
+}
+
+.today-more[hidden] {
+  display: none;
+}

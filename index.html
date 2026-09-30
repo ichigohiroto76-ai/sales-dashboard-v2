@@ -51,6 +51,22 @@
           <div id="summaryGrid" class="summary-grid" aria-live="polite"></div>
         </section>
 
+        <section id="today" class="page-section" aria-labelledby="todayTitle">
+          <div class="section-heading">
+            <div>
+              <p class="section-label">Today</p>
+              <h2 id="todayTitle">今日の対応 <span id="todayCount">0件</span></h2>
+            </div>
+            <div id="todayBreakdown" class="today-breakdown"></div>
+            <label class="today-owner">
+              <span>担当者</span>
+              <select id="todayOwner"></select>
+            </label>
+          </div>
+          <div id="todayList" class="today-list"></div>
+          <button id="todayMoreButton" class="button button-secondary today-more" type="button" hidden></button>
+        </section>
+
         <section id="stores" class="page-section stores-section" aria-labelledby="storesTitle">
           <div class="section-heading">
             <div>
