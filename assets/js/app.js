@@ -21,6 +21,8 @@ const state = {
   stores: [],
   pendingDelete: null,
   isRefreshing: false,
+  refreshPending: false,
+  writeVersion: 0,
   todayOwner: loadTodayOwner(),
   todayExpanded: false,
   filters: {
@@ -139,11 +141,13 @@ function bindEvents() {
     if (!select) return;
 
     try {
-      await updateStoreStatus(select.dataset.statusStoreId, select.value);
+      const savedStore = await runWrite(() => updateStoreStatus(select.dataset.statusStoreId, select.value));
+      applySavedStore(savedStore);
       await refreshStores();
       showToast("営業ステータスを更新しました。");
     } catch (error) {
       console.error(error);
+      render();
       window.alert(error.isAuthError ? error.message : "営業ステータスを更新できませんでした。時間をおいて再度お試しください。");
     }
   });
@@ -187,13 +191,41 @@ function render() {
   renderStores();
 }
 
+// 書き込みの前後で世代を進め、書き込み中・書き込み前に開始したGETの結果を破棄できるようにする
+async function runWrite(write) {
+  state.writeVersion += 1;
+  try {
+    return await write();
+  } finally {
+    state.writeVersion += 1;
+  }
+}
+
+// 保存成功後、再GETを待たずに最新の店舗を state へ反映して現在のフィルター条件で再描画する
+function applySavedStore(savedStore) {
+  if (!savedStore) return;
+  const exists = state.stores.some((store) => store.id === savedStore.id);
+  state.stores = exists
+    ? state.stores.map((store) => (store.id === savedStore.id ? savedStore : store))
+    : [savedStore, ...state.stores];
+  render();
+}
+
 async function refreshStores(options = {}) {
-  if (state.isRefreshing) return;
+  if (state.isRefreshing) {
+    // 通信中の要求は消さず、完了後に1回だけ再取得する
+    state.refreshPending = true;
+    return;
+  }
 
   state.isRefreshing = true;
+  const startedVersion = state.writeVersion;
   try {
-    state.stores = await getStores();
-    render();
+    const stores = await getStores();
+    if (startedVersion === state.writeVersion) {
+      state.stores = stores;
+      render();
+    }
   } catch (error) {
     console.error(error);
     if (!options.silent) {
@@ -201,6 +233,10 @@ async function refreshStores(options = {}) {
     }
   } finally {
     state.isRefreshing = false;
+    if (state.refreshPending) {
+      state.refreshPending = false;
+      await refreshStores(options);
+    }
   }
 }
 
@@ -317,12 +353,14 @@ async function handleStoreSubmit(event) {
   });
 
   try {
-    await saveStore(store);
+    const savedStore = await runWrite(() => saveStore(store));
+    applySavedStore(savedStore);
     await refreshStores();
     closeStoreDialog();
     showToast("店舗情報を保存しました。");
   } catch (error) {
     console.error(error);
+    render();
     window.alert(error.isAuthError ? error.message : "店舗情報を保存できませんでした。時間をおいて再度お試しください。");
   }
 }
@@ -360,7 +398,7 @@ async function handleBulkStoreSubmit(event) {
 
   if (storesToAdd.length > 0) {
     try {
-      await saveStores(storesToAdd);
+      await runWrite(() => saveStores(storesToAdd));
       await refreshStores();
     } catch (error) {
       console.error(error);
@@ -402,7 +440,9 @@ async function confirmDeleteStore() {
 
   const { storeId, closeStoreDialogOnDelete } = state.pendingDelete;
   try {
-    await deleteStore(storeId);
+    await runWrite(() => deleteStore(storeId));
+    state.stores = state.stores.filter((store) => store.id !== storeId);
+    render();
     await refreshStores();
     elements.deleteConfirmDialog.close();
     if (closeStoreDialogOnDelete) closeStoreDialog();
@@ -444,7 +484,7 @@ async function handleImportCsv(event) {
   if (!confirmed) return;
 
   try {
-    state.stores = await replaceStores(stores);
+    state.stores = await runWrite(() => replaceStores(stores));
   } catch (error) {
     console.error(error);
     window.alert(error.isAuthError ? error.message : "CSVを読み込めませんでした。時間をおいて再度お試しください。");
